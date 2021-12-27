@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Forge</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+        <a class="navbar-brand" href="index.html">ForgeCrypto</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="hash.html">Hash</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="hmac.html">HMAC</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="pbkdf2.html">PBKDF2</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="sym-enc.html">SymEnc</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="sym-pbkdf2-enc.html">SymEnc+PBKDF2</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="rsa-enc.html">RSAEnc</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="rsa-sig.html">RSASig</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="cert.html">Cert</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1 class="display-4 text-center">X.509 인증서 발급</h1>
+      <hr />
+
+      <p>
+        인증서란 개인의 공개키와 개인의 인증정보에 대해 인증기관이 서명하여
+        발급하는 문서이다.
+      </p>
+      <div class="text-center">
+        <img src="x509.jpg" height="400px" alt="" /> &nbsp;&nbsp;&nbsp;
+        <img src="cert.jpg" height="400px" alt="" />
+      </div>
+      <hr />
+
+      <form>
+        <div class="alert-info">
+          <!-- 인증기관 자체인증서 발행  -->
+          <h1>인증기관의 키쌍 생성</h1>
+          <table class="table table-hover">
+            <tr>
+              <td width="200px">인증기관 키길이</td>
+              <td>
+                <select id="caKeyLength">
+                  <option value="1">1024</option>
+                  <option value="2" selected>2048</option>
+                  <option value="3" disabled>3072</option>
+                  <option value="4" disabled>4196</option>
+                </select>
+                &nbsp;&nbsp;&nbsp;
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  onclick="caKeyGeneration()"
+                >
+                  난수 키생성 (인증기관)
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td width="200px">인증기관 공개키</td>
+              <td>
+                <textarea id="caPubKey" readonly rows="8" cols="100"></textarea>
+              </td>
+            </tr>
+            <tr>
+              <td width="200px">인증기관 개인키</td>
+              <td>
+                <textarea
+                  id="caPrivKey"
+                  readonly
+                  rows="8"
+                  cols="100"
+                ></textarea>
+              </td>
+            </tr>
+          </table>
+
+          <h1>인증기관 자체인증서 발급</h1>
+          <table class="table table-hover">
+            <tr>
+              <td width="200px">일련번호</td>
+              <td>
+                <input type="number" id="serialNumber_ca" value="1" size="40" />
+              </td>
+            </tr>
+            <tr>
+              <td width="200px">Common Name (이름)</td>
+              <td>
+                <input
+                  type="text"
+                  id="commonName_ca"
+                  value="Byoungcheon Lee"
+                  size="40"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td width="200px">Country (국가)</td>
+              <td>
+                <input type="text" id="countryName_ca" value="KR" size="40" />
+              </td>
+            </tr>
+            <tr>
+              <td width="200px">State (광역시도)</td>
+              <td>
+                <input type="text" id="ST_ca" value="경기도" size="40" />
+              </td>
+            </tr>
+            <tr>
+              <td width="200px">Locality (시군)</td>
+              <td>
+                <input
+                  type="text"
+                  id="localityName_ca"
+                  value="고양시"
+                  size="40"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td width="200px">Organization (기관명)</td>
+              <td>
+                <input
+                  type="text"
+                  id="organizationName_ca"
+                  value="중부대학교"
+                  size="40"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td width="200px">Organization Unit (부서명)</td>
+              <td>
+                <input type="text" id="OU_ca" value="정보보호학과" size="40" />
+              </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  onclick="genCaCert()"
+                >
+                  자체인증서 발급
+                </button>
+                &nbsp; &nbsp;
+                <button type="reset" class="btn btn-secondary">초기화</button>
+              </td>
+            </tr>
+          </table>
+
+          <h1>발급된 인증기관 인증서</h1>
+          <table class="table table-hover">
+            <tr>
+              <td width="200px">인증기관 인증서</td>
+              <td>
+                <textarea id="caCert" rows="15" cols="100" readonly> </textarea>
+              </td>
+            </tr>
+            <tr>
+              <td width="200px">인증서 유효성 검증</td>
+              <td>
+                <input type="text" id="caVerified" readonly />
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="alert-success">
+          <!-- 인증기관이 사용자에게 인증서 발급  -->
+          <h1>사용자의 키쌍 생성</h1>
+          <table class="table table-hover">
+            <tr>
+              <td width="200px">사용자 키길이</td>
+              <td>
+                <select id="userKeyLength">
+                  <option value="1" selected>1024</option>
+                  <option value="2">2048</option>
+                  <option value="3" disabled>3072</option>
+                  <option value="4" disabled>4196</option>
+                </select>
+                &nbsp;&nbsp;&nbsp;
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  onclick="userKeyGeneration()"
+                >
+                  난수 키생성 (사용자)
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td width="200px">사용자 공개키</td>
+              <td>
+                <textarea
+                  id="userPubKey"
+                  readonly
+                  rows="8"
+                  cols="100"
+                ></textarea>
+              </td>
+            </tr>
+            <tr>
+              <td width="200px">사용자 개인키</td>
+              <td>
+                <textarea
+                  id="userPrivKey"
+                  readonly
+                  rows="8"
+                  cols="100"
+                ></textarea>
+              </td>
+            </tr>
+          </table>
+
+          <h1>사용자 인증서 발급</h1>
+          <table class="table table-hover">
+            <tr>
+              <td width="200px">일련번호</td>
+              <td>
+                <input
+                  type="number"
+                  id="serialNumber_user"
+                  value="101"
+                  size="40"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td width="200px">Common Name (이름)</td>
+              <td>
+                <input
+                  type="text"
+                  id="commonName_user"
+                  value="User Lee"
+                  size="40"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td width="200px">Country (국가)</td>
+              <td>
+                <input type="text" id="countryName_user" value="KR" size="40" />
+              </td>
+            </tr>
+            <tr>
+              <td width="200px">State (광역시도)</td>
+              <td>
+                <input type="text" id="ST_user" value="경기도" size="40" />
+              </td>
+            </tr>
+            <tr>
+              <td width="200px">Locality (시군)</td>
+              <td>
+                <input
+                  type="text"
+                  id="localityName_user"
+                  value="고양시"
+                  size="40"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td width="200px">Organization (기관명)</td>
+              <td>
+                <input
+                  type="text"
+                  id="organizationName_user"
+                  value="중부대학교"
+                  size="40"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td width="200px">Organization Unit (부서명)</td>
+              <td>
+                <input
+                  type="text"
+                  id="OU_user"
+                  value="정보보호학과"
+                  size="40"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  onclick="genUserCert()"
+                >
+                  사용자인증서 발급
+                </button>
+                &nbsp; &nbsp;
+                <button type="reset" class="btn btn-secondary">초기화</button>
+              </td>
+            </tr>
+          </table>
+
+          <h1>발급된 사용자 인증서</h1>
+          <table class="table table-hover">
+            <tr>
+              <td width="200px">사용자 인증서</td>
+              <td>
+                <textarea id="userCert" rows="15" cols="100" readonly>
+                </textarea>
+              </td>
+            </tr>
+            <tr>
+              <td width="200px">사용자 인증서 유효성 검증</td>
+              <td>
+                <input type="text" id="userVerified" readonly />
+              </td>
+            </tr>
+          </table>
+        </div>
+      </form>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/node-forge@0.7.0/dist/forge.min.js"></script>
+    <script src="cert.js"></script>
+  </body>
+</html>
